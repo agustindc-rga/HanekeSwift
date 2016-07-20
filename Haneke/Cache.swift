@@ -149,6 +149,13 @@ public class Cache<T: DataConvertible where T.Result == T, T : DataRepresentable
             } catch {
                 Log.error("Failed to remove path \(path)", error as NSError)
             }
+            
+            // add formats again to ensure memory and disk caches are recreated
+            let currentFormats = self.formats.values
+            for (format, _, _) in currentFormats {
+                self.addFormat(format)
+            }
+            
             if let completion = completion {
                 dispatch_async(dispatch_get_main_queue()) {
                     completion()
