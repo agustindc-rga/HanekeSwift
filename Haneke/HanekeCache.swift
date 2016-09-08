@@ -159,6 +159,25 @@ public class HanekeCache<T: DataConvertible> where T.Result == T, T : DataRepres
             }
         }
     }
+    
+    public func contains(key: String, formatName: String = HanekeGlobals.Cache.OriginalFormatName) -> Bool {
+        guard let (_, memoryCache, diskCache) = self.formats[formatName] else { 
+            return false 
+        }
+        
+        if let wrapper = memoryCache.object(forKey: key as AnyObject) as? ObjectWrapper, 
+            let _ = wrapper.value as? T {
+            return true
+        }
+        
+        let path = diskCache.path(forKey: key)
+        let fileURL = NSURL(fileURLWithPath: path)
+        return fileURL.checkResourceIsReachableAndReturnError(nil)
+    }
+    
+    public func contains(fetcher : Fetcher<T>, formatName: String = HanekeGlobals.Cache.OriginalFormatName) -> Bool {
+        return contains(key: fetcher.key, formatName: formatName)
+    } 
 
     // MARK: Size
 
