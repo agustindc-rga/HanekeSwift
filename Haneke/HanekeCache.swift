@@ -178,8 +178,12 @@ public class HanekeCache<T: DataConvertible> where T.Result == T, T : DataRepres
         }
         
         let path = diskCache.path(forKey: key)
-        let fileURL = NSURL(fileURLWithPath: path)
-        return fileURL.checkResourceIsReachableAndReturnError(nil)
+        let fileURL = URL(fileURLWithPath: path)
+        do {
+            return try fileURL.checkResourceIsReachable()
+        } catch {
+            return false
+        }
     }
     
     public func contains(fetcher : Fetcher<T>, formatName: String = HanekeGlobals.Cache.OriginalFormatName) -> Bool {

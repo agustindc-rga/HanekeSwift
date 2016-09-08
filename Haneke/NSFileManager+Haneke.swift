@@ -8,26 +8,34 @@
 
 import Foundation
 
+extension URL {
+    func resourceValue(forKey key: URLResourceKey) throws -> Any? {
+        let values = try resourceValues(forKeys: [key])
+        return values.allValues[key]
+    }
+}
+
 extension FileManager {
 
     func enumerateContentsOfDirectory(atPath path: String, orderedByProperty property: String, ascending: Bool, usingBlock block: (URL, Int, inout Bool) -> Void ) {
 
         let directoryURL = URL(fileURLWithPath: path)
+        let resourceKey = URLResourceKey(rawValue: property)
         do {
             let contents = try self.contentsOfDirectory(at: directoryURL, includingPropertiesForKeys: [URLResourceKey(rawValue: property)], options: FileManager.DirectoryEnumerationOptions())
-            let sortedContents = contents.sorted(by: {(URL1: URL, URL2: URL) -> Bool in
+            let sortedContents = contents.sorted { (URL1: URL, URL2: URL) -> Bool in
                 
                 // Maybe there's a better way to do this. See: http://stackoverflow.com/questions/25502914/comparing-anyobject-in-swift
                 
-                var value1 : AnyObject?
+                var value1 : Any?
                 do {
-                    try (URL1 as NSURL).getResourceValue(&value1, forKey: URLResourceKey(rawValue: property))
+                    value1 = try URL1.resourceValue(forKey: resourceKey)
                 } catch {
                     return true
                 }
-                var value2 : AnyObject?
+                var value2 : Any?
                 do {
-                    try (URL2 as NSURL).getResourceValue(&value2, forKey: URLResourceKey(rawValue: property))
+                    value2 = try URL2.resourceValue(forKey: resourceKey)
                 } catch {
                     return false
                 }
@@ -45,7 +53,7 @@ extension FileManager {
                 }
                 
                 return false
-            })
+            }
             
             for (i, v) in sortedContents.enumerated() {
                 var stop : Bool = false
