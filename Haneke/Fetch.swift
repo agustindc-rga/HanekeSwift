@@ -31,6 +31,7 @@ public class Fetch<T> {
     
     public init() {}
     
+    @discardableResult
     public func onSuccess(_ onSuccess: Succeeder) -> Self {
         self.onSuccess = onSuccess
         switch self.state {
@@ -42,6 +43,7 @@ public class Fetch<T> {
         return self
     }
     
+    @discardableResult
     public func onFailure(_ onFailure: Failer) -> Self {
         self.onFailure = onFailure
         switch self.state {

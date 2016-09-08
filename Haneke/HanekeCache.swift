@@ -76,6 +76,7 @@ public class HanekeCache<T: DataConvertible> where T.Result == T, T : DataRepres
         }
     }
     
+    @discardableResult
     public func fetch(key: String, formatName: String = HanekeGlobals.Cache.OriginalFormatName, failure fail : Fetch<T>.Failer? = nil, success succeed : Fetch<T>.Succeeder? = nil) -> Fetch<T> {
         let fetch = HanekeCache.buildFetch(failure: fail, success: succeed)
         if let (format, memoryCache, diskCache) = self.formats[formatName] {
@@ -100,6 +101,7 @@ public class HanekeCache<T: DataConvertible> where T.Result == T, T : DataRepres
         return fetch
     }
     
+    @discardableResult
     public func fetch(fetcher : Fetcher<T>, formatName: String = HanekeGlobals.Cache.OriginalFormatName, failure fail : Fetch<T>.Failer? = nil, success succeed : Fetch<T>.Succeeder? = nil) -> Fetch<T> {
         let key = fetcher.key
         let fetch = HanekeCache.buildFetch(failure: fail, success: succeed)

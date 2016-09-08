@@ -186,6 +186,7 @@ public class DiskCache {
         self.controlCapacity()
     }
     
+    @discardableResult
     private func updateDiskAccessDate(atPath path: String) -> Bool {
         let fileManager = FileManager.default
         let now = Date()
