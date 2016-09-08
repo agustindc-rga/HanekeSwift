@@ -152,6 +152,13 @@ public class HanekeCache<T: DataConvertible> where T.Result == T, T : DataRepres
             } catch {
                 Log.error(message: "Failed to remove path \(path)", error: error)
             }
+            
+            // add formats again to ensure memory and disk caches are recreated
+            let currentFormats = self.formats.values
+            for (format, _, _) in currentFormats {
+                self.addFormat(format)
+            }
+
             if let completion = completion {
                 DispatchQueue.main.async {
                     completion()
