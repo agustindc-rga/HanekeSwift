@@ -34,7 +34,7 @@ extension HanekeGlobals {
 }
 
 // In order to not conflict with upcoming `Cache` naming convention for Swift3, name changed to HanekeCache
-open class HanekeCache<T: DataConvertible> where T.Result == T, T : DataRepresentable {
+public class HanekeCache<T: DataConvertible> where T.Result == T, T : DataRepresentable {
     
     let name: String
     
@@ -62,7 +62,7 @@ open class HanekeCache<T: DataConvertible> where T.Result == T, T : DataRepresen
         notifications.removeObserver(memoryWarningObserver, name: Notification.Name.UIApplicationDidReceiveMemoryWarning, object: nil)
     }
     
-    open func set(value: T, key: String, formatName: String = HanekeGlobals.Cache.OriginalFormatName, success succeed: ((T) -> ())? = nil) {
+    public func set(value: T, key: String, formatName: String = HanekeGlobals.Cache.OriginalFormatName, success succeed: ((T) -> ())? = nil) {
         if let (format, memoryCache, diskCache) = self.formats[formatName] {
             self.format(value: value, format: format) { formattedValue in
                 let wrapper = ObjectWrapper(value: formattedValue)
@@ -76,7 +76,7 @@ open class HanekeCache<T: DataConvertible> where T.Result == T, T : DataRepresen
         }
     }
     
-    open func fetch(key: String, formatName: String = HanekeGlobals.Cache.OriginalFormatName, failure fail : Fetch<T>.Failer? = nil, success succeed : Fetch<T>.Succeeder? = nil) -> Fetch<T> {
+    public func fetch(key: String, formatName: String = HanekeGlobals.Cache.OriginalFormatName, failure fail : Fetch<T>.Failer? = nil, success succeed : Fetch<T>.Succeeder? = nil) -> Fetch<T> {
         let fetch = HanekeCache.buildFetch(failure: fail, success: succeed)
         if let (format, memoryCache, diskCache) = self.formats[formatName] {
             if let wrapper = memoryCache.object(forKey: key as AnyObject) as? ObjectWrapper, let result = wrapper.hnk_value as? T {
@@ -100,7 +100,7 @@ open class HanekeCache<T: DataConvertible> where T.Result == T, T : DataRepresen
         return fetch
     }
     
-    open func fetch(fetcher : Fetcher<T>, formatName: String = HanekeGlobals.Cache.OriginalFormatName, failure fail : Fetch<T>.Failer? = nil, success succeed : Fetch<T>.Succeeder? = nil) -> Fetch<T> {
+    public func fetch(fetcher : Fetcher<T>, formatName: String = HanekeGlobals.Cache.OriginalFormatName, failure fail : Fetch<T>.Failer? = nil, success succeed : Fetch<T>.Succeeder? = nil) -> Fetch<T> {
         let key = fetcher.key
         let fetch = HanekeCache.buildFetch(failure: fail, success: succeed)
         self.fetch(key: key, formatName: formatName, failure: { error in
@@ -123,14 +123,14 @@ open class HanekeCache<T: DataConvertible> where T.Result == T, T : DataRepresen
         return fetch
     }
 
-    open func remove(key: String, formatName: String = HanekeGlobals.Cache.OriginalFormatName) {
+    public func remove(key: String, formatName: String = HanekeGlobals.Cache.OriginalFormatName) {
         if let (_, memoryCache, diskCache) = self.formats[formatName] {
             memoryCache.removeObject(forKey: key as AnyObject)
             diskCache.removeData(with: key)
         }
     }
     
-    open func removeAll(_ completion: (() -> ())? = nil) {
+    public func removeAll(_ completion: (() -> ())? = nil) {
         let group = DispatchGroup()
         for (_, (_, memoryCache, diskCache)) in self.formats {
             memoryCache.removeAllObjects()
@@ -160,7 +160,7 @@ open class HanekeCache<T: DataConvertible> where T.Result == T, T : DataRepresen
 
     // MARK: Size
 
-    open var size: UInt64 {
+    public var size: UInt64 {
         var size: UInt64 = 0
         for (_, (_, _, diskCache)) in self.formats {
             diskCache.cacheQueue.sync { size += diskCache.size }
@@ -180,7 +180,7 @@ open class HanekeCache<T: DataConvertible> where T.Result == T, T : DataRepresen
 
     var formats : [String : (Format<T>, NSCache<AnyObject, AnyObject>, DiskCache)] = [:]
     
-    open func addFormat(_ format : Format<T>) {
+    public func addFormat(_ format : Format<T>) {
         let name = format.name
         let formatPath = self.formatPath(withFormatName: name)
         let memoryCache = NSCache<AnyObject, AnyObject>()
@@ -215,7 +215,7 @@ open class HanekeCache<T: DataConvertible> where T.Result == T, T : DataRepresen
         return value.asData()
     }
     
-    fileprivate func fetchFromDiskCache(_ diskCache : DiskCache, key: String, memoryCache : NSCache<AnyObject, AnyObject>, failure fail : ((Error?) -> ())?, success succeed : @escaping (T) -> ()) {
+    private func fetchFromDiskCache(_ diskCache : DiskCache, key: String, memoryCache : NSCache<AnyObject, AnyObject>, failure fail : ((Error?) -> ())?, success succeed : @escaping (T) -> ()) {
         diskCache.fetchData(key: key, failure: { error in
             if let block = fail {
                 if (error as? NSError)?.code == NSFileReadNoSuchFileError {
@@ -242,7 +242,7 @@ open class HanekeCache<T: DataConvertible> where T.Result == T, T : DataRepresen
         }
     }
     
-    fileprivate func fetchAndSet(_ fetcher : Fetcher<T>, format : Format<T>, failure fail : ((Error?) -> ())?, success succeed : @escaping (T) -> ()) {
+    private func fetchAndSet(_ fetcher : Fetcher<T>, format : Format<T>, failure fail : ((Error?) -> ())?, success succeed : @escaping (T) -> ()) {
         fetcher.fetch(failure: { error in
             let _ = fail?(error)
         }) { value in
@@ -250,7 +250,7 @@ open class HanekeCache<T: DataConvertible> where T.Result == T, T : DataRepresen
         }
     }
     
-    fileprivate func format(value : T, format : Format<T>, success succeed : @escaping (T) -> ()) {
+    private func format(value : T, format : Format<T>, success succeed : @escaping (T) -> ()) {
         // HACK: Ideally Cache shouldn't treat images differently but I can't think of any other way of doing this that doesn't complicate the API for other types.
         if format.isIdentity && !(value is UIImage) {
             succeed(value)
@@ -272,7 +272,7 @@ open class HanekeCache<T: DataConvertible> where T.Result == T, T : DataRepresen
         }
     }
     
-    fileprivate func decompressedImageIfNeeded(_ value : T) -> T {
+    private func decompressedImageIfNeeded(_ value : T) -> T {
         if let image = value as? UIImage {
             let decompressedImage = image.hnk_decompressedImage() as? T
             return decompressedImage!
@@ -280,7 +280,7 @@ open class HanekeCache<T: DataConvertible> where T.Result == T, T : DataRepresen
         return value
     }
     
-    fileprivate class func buildFetch(failure fail : Fetch<T>.Failer? = nil, success succeed : Fetch<T>.Succeeder? = nil) -> Fetch<T> {
+    private class func buildFetch(failure fail : Fetch<T>.Failer? = nil, success succeed : Fetch<T>.Succeeder? = nil) -> Fetch<T> {
         let fetch = Fetch<T>()
         if let succeed = succeed {
             fetch.onSuccess(succeed)
@@ -294,17 +294,17 @@ open class HanekeCache<T: DataConvertible> where T.Result == T, T : DataRepresen
     // MARK: Convenience fetch
     // Ideally we would put each of these in the respective fetcher file as a Cache extension. Unfortunately, this fails to link when using the framework in a project as of Xcode 6.1.
     
-    open func fetch(key: String, value getValue : @autoclosure @escaping () -> T.Result, formatName: String = HanekeGlobals.Cache.OriginalFormatName, success succeed : Fetch<T>.Succeeder? = nil) -> Fetch<T> {
+    public func fetch(key: String, value getValue : @autoclosure @escaping () -> T.Result, formatName: String = HanekeGlobals.Cache.OriginalFormatName, success succeed : Fetch<T>.Succeeder? = nil) -> Fetch<T> {
         let fetcher = SimpleFetcher<T>(key: key, value: getValue)
         return self.fetch(fetcher: fetcher, formatName: formatName, success: succeed)
     }
     
-    open func fetch(path: String, formatName: String = HanekeGlobals.Cache.OriginalFormatName,  failure fail : Fetch<T>.Failer? = nil, success succeed : Fetch<T>.Succeeder? = nil) -> Fetch<T> {
+    public func fetch(path: String, formatName: String = HanekeGlobals.Cache.OriginalFormatName,  failure fail : Fetch<T>.Failer? = nil, success succeed : Fetch<T>.Succeeder? = nil) -> Fetch<T> {
         let fetcher = DiskFetcher<T>(path: path)
         return self.fetch(fetcher: fetcher, formatName: formatName, failure: fail, success: succeed)
     }
     
-    open func fetch(URL : Foundation.URL, formatName: String = HanekeGlobals.Cache.OriginalFormatName,  failure fail : Fetch<T>.Failer? = nil, success succeed : Fetch<T>.Succeeder? = nil) -> Fetch<T> {
+    public func fetch(URL : Foundation.URL, formatName: String = HanekeGlobals.Cache.OriginalFormatName,  failure fail : Fetch<T>.Failer? = nil, success succeed : Fetch<T>.Succeeder? = nil) -> Fetch<T> {
         let fetcher = NetworkFetcher<T>(URL: URL)
         return self.fetch(fetcher: fetcher, formatName: formatName, failure: fail, success: succeed)
     }

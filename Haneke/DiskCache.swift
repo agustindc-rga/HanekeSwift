@@ -8,9 +8,9 @@
 
 import Foundation
 
-open class DiskCache {
+public class DiskCache {
     
-    open class func basePath() -> String {
+    public class func basePath() -> String {
         let cachesPath = NSSearchPathForDirectoriesInDomains(FileManager.SearchPathDirectory.cachesDirectory, FileManager.SearchPathDomainMask.userDomainMask, true)[0]
         let hanekePathComponent = HanekeGlobals.Domain
         let basePath = (cachesPath as NSString).appendingPathComponent(hanekePathComponent)
@@ -18,11 +18,11 @@ open class DiskCache {
         return basePath
     }
     
-    open let path: String
+    public let path: String
 
-    open var size : UInt64 = 0
+    public var size : UInt64 = 0
 
-    open var capacity : UInt64 = 0 {
+    public var capacity : UInt64 = 0 {
         didSet {
             self.cacheQueue.async(execute: {
                 self.controlCapacity()
@@ -30,7 +30,7 @@ open class DiskCache {
         }
     }
 
-    open lazy var cacheQueue : DispatchQueue = {
+    public lazy var cacheQueue : DispatchQueue = {
         let queueName = HanekeGlobals.Domain + "." + (self.path as NSString).lastPathComponent
         let cacheQueue = DispatchQueue(label: queueName, attributes: [])
         return cacheQueue
@@ -45,7 +45,7 @@ open class DiskCache {
         })
     }
     
-    open func setData( _ getData: @autoclosure @escaping () -> Data?, key: String) {
+    public func setData( _ getData: @autoclosure @escaping () -> Data?, key: String) {
         cacheQueue.async(execute: {
             if let data = getData() {
                 self.setDataSync(data, key: key)
@@ -55,7 +55,7 @@ open class DiskCache {
         })
     }
     
-    open func fetchData(key: String, failure fail: ((Error?) -> ())? = nil, success succeed: @escaping (Data) -> ()) {
+    public func fetchData(key: String, failure fail: ((Error?) -> ())? = nil, success succeed: @escaping (Data) -> ()) {
         cacheQueue.async {
             let path = self.path(forKey: key)
             do {
@@ -74,14 +74,14 @@ open class DiskCache {
         }
     }
 
-    open func removeData(with key: String) {
+    public func removeData(with key: String) {
         cacheQueue.async(execute: {
             let path = self.path(forKey: key)
             self.removeFile(atPath: path)
         })
     }
     
-    open func removeAllData(_ completion: (() -> ())? = nil) {
+    public func removeAllData(_ completion: (() -> ())? = nil) {
         let fileManager = FileManager.default
         let cachePath = self.path
         cacheQueue.async(execute: {
@@ -107,7 +107,7 @@ open class DiskCache {
         })
     }
 
-    open func updateAccessDate( _ getData: @autoclosure @escaping () -> Data?, key: String) {
+    public func updateAccessDate( _ getData: @autoclosure @escaping () -> Data?, key: String) {
         cacheQueue.async(execute: {
             let path = self.path(forKey: key)
             let fileManager = FileManager.default
@@ -121,7 +121,7 @@ open class DiskCache {
         })
     }
 
-    open func path(forKey key: String) -> String {
+    public func path(forKey key: String) -> String {
         let escapedFilename = key.escapedFilename()
         let filename = escapedFilename.characters.count < Int(NAME_MAX) ? escapedFilename : key.MD5Filename()
         let keyPath = (self.path as NSString).appendingPathComponent(filename)
@@ -130,7 +130,7 @@ open class DiskCache {
     
     // MARK: Private
     
-    fileprivate func calculateSize() {
+    private func calculateSize() {
         let fileManager = FileManager.default
         size = 0
         let cachePath = self.path
@@ -153,7 +153,7 @@ open class DiskCache {
         }
     }
     
-    fileprivate func controlCapacity() {
+    private func controlCapacity() {
         if self.size <= self.capacity { return }
         
         let fileManager = FileManager.default
@@ -166,7 +166,7 @@ open class DiskCache {
         }
     }
     
-    fileprivate func setDataSync(_ data: Data, key: String) {
+    private func setDataSync(_ data: Data, key: String) {
         let path = self.path(forKey: key)
         let fileManager = FileManager.default
         let previousAttributes : [FileAttributeKey: Any]? = try? fileManager.attributesOfItem(atPath: path)
@@ -186,7 +186,7 @@ open class DiskCache {
         self.controlCapacity()
     }
     
-    fileprivate func updateDiskAccessDate(atPath path: String) -> Bool {
+    private func updateDiskAccessDate(atPath path: String) -> Bool {
         let fileManager = FileManager.default
         let now = Date()
         do {
@@ -198,7 +198,7 @@ open class DiskCache {
         }
     }
     
-    fileprivate func removeFile(atPath path: String) {
+    private func removeFile(atPath path: String) {
         let fileManager = FileManager.default
         do {
             let attributes: [FileAttributeKey: Any] = try fileManager.attributesOfItem(atPath: path)
@@ -219,7 +219,7 @@ open class DiskCache {
         }
     }
 
-    fileprivate func substract(size : UInt64) {
+    private func substract(size : UInt64) {
         if (self.size >= size) {
             self.size -= size
         } else {

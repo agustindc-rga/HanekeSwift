@@ -153,7 +153,7 @@ class NetworkFetcherTests: XCTestCase {
     
     // MARK: Private
 
-    fileprivate func testFetchImageSuccessWithStatusCode(_ statusCode : Int32) {
+    private func testFetchImageSuccessWithStatusCode(_ statusCode : Int32) {
         let image = UIImage.imageWithColor(UIColor.green)
         OHHTTPStubs.stubRequestsPassingTest({ _ in
             return true
@@ -176,7 +176,7 @@ class NetworkFetcherTests: XCTestCase {
         self.waitForExpectations(timeout: 1, handler: nil)
     }
 
-    fileprivate func testFetchImageFailureWithInvalidStatusCode(_ statusCode : Int32) {
+    private func testFetchImageFailureWithInvalidStatusCode(_ statusCode : Int32) {
         OHHTTPStubs.stubRequestsPassingTest({ _ in
             return true
         }, withStubResponse: { _ in

@@ -17,21 +17,21 @@ enum FetchState<T> {
     case failure(Error?)
 }
 
-open class Fetch<T> {
+public class Fetch<T> {
     
-    public typealias Succeeder = (T) -> ()
+    public typealias Succeeder = @escaping (T) -> ()
     
-    public typealias Failer = (Error?) -> ()
+    public typealias Failer = @escaping (Error?) -> ()
     
-    fileprivate var onSuccess : Succeeder?
+    private var onSuccess : Succeeder?
     
-    fileprivate var onFailure : Failer?
+    private var onFailure : Failer?
     
-    fileprivate var state : FetchState<T> = FetchState.pending
+    private var state : FetchState<T> = FetchState.pending
     
     public init() {}
     
-    open func onSuccess(_ onSuccess: @escaping Succeeder) -> Self {
+    public func onSuccess(_ onSuccess: Succeeder) -> Self {
         self.onSuccess = onSuccess
         switch self.state {
         case FetchState.success(let wrapper):
@@ -42,7 +42,7 @@ open class Fetch<T> {
         return self
     }
     
-    open func onFailure(_ onFailure: @escaping Failer) -> Self {
+    public func onFailure(_ onFailure: Failer) -> Self {
         self.onFailure = onFailure
         switch self.state {
         case FetchState.failure(let error):
@@ -83,7 +83,7 @@ open class Fetch<T> {
     
 }
 
-open class Wrapper<T> {
-    open let value: T
+public class Wrapper<T> {
+    public let value: T
     public init(_ value: T) { self.value = value }
 }

@@ -23,7 +23,7 @@ extension HanekeGlobals {
     
 }
 
-open class NetworkFetcher<T : DataConvertible> : Fetcher<T> {
+public class NetworkFetcher<T : DataConvertible> : Fetcher<T> {
     
     let URL : Foundation.URL
     
@@ -34,7 +34,7 @@ open class NetworkFetcher<T : DataConvertible> : Fetcher<T> {
         super.init(key: key)
     }
     
-    open var session : URLSession { return URLSession.shared }
+    public var session : URLSession { return URLSession.shared }
     
     var task : URLSessionDataTask? = nil
     
@@ -42,7 +42,7 @@ open class NetworkFetcher<T : DataConvertible> : Fetcher<T> {
     
     // MARK: Fetcher
     
-    open override func fetch(failure fail: @escaping ((Error?) -> ()), success succeed: @escaping (T.Result) -> ()) {
+    public override func fetch(failure fail: @escaping (Error?) -> (), success succeed: @escaping (T.Result) -> ()) {
         self.cancelled = false
         self.task = self.session.dataTask(with: self.URL) {[weak self] (data, response, error) -> Void in
             if let strongSelf = self {
@@ -52,14 +52,14 @@ open class NetworkFetcher<T : DataConvertible> : Fetcher<T> {
         self.task?.resume()
     }
     
-    open override func cancelFetch() {
+    public override func cancelFetch() {
         self.task?.cancel()
         self.cancelled = true
     }
     
     // MARK: Private
     
-    fileprivate func onReceive(data: Data!, response: URLResponse!, error: Error!, failure fail: @escaping ((Error?) -> ()), success succeed: @escaping (T.Result) -> ()) {
+    private func onReceive(data: Data!, response: URLResponse!, error: Error!, failure fail: @escaping (Error?) -> (), success succeed: @escaping (T.Result) -> ()) {
 
         if cancelled { return }
         
@@ -97,7 +97,7 @@ open class NetworkFetcher<T : DataConvertible> : Fetcher<T> {
 
     }
     
-    fileprivate func failWithCode(_ code: HanekeGlobals.NetworkFetcher.ErrorCode, localizedDescription: String, failure fail: @escaping ((Error?) -> ())) {
+    private func failWithCode(_ code: HanekeGlobals.NetworkFetcher.ErrorCode, localizedDescription: String, failure fail: @escaping (Error?) -> ()) {
         let error = errorWithCode(code.rawValue, description: localizedDescription)
         Log.debug(message: localizedDescription, error: error)
         DispatchQueue.main.async { fail(error) }

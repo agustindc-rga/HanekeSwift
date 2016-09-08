@@ -9,17 +9,17 @@
 import UIKit
 
 // See: http://stackoverflow.com/questions/25915306/generic-closure-in-protocol
-open class Fetcher<T : DataConvertible> {
+public class Fetcher<T : DataConvertible> {
 
-    open let key: String
+    public let key: String
     
     public init(key: String) {
         self.key = key
     }
     
-    open func fetch(failure fail: @escaping ((Error?) -> ()), success succeed: @escaping (T.Result) -> ()) {}
+    public func fetch(failure fail: @escaping (Error?) -> (), success succeed: @escaping (T.Result) -> ()) {}
     
-    open func cancelFetch() {}
+    public func cancelFetch() {}
 }
 
 class SimpleFetcher<T : DataConvertible> : Fetcher<T> {
@@ -31,7 +31,7 @@ class SimpleFetcher<T : DataConvertible> : Fetcher<T> {
         super.init(key: key)
     }
     
-    override func fetch(failure fail: @escaping ((Error?) -> ()), success succeed: @escaping (T.Result) -> ()) {
+    override func fetch(failure fail: @escaping (Error?) -> (), success succeed: @escaping (T.Result) -> ()) {
         let value = getValue()
         succeed(value)
     }
