@@ -9,11 +9,11 @@
 import UIKit
 
 // Used to add T to NSCache
-class ObjectWrapper : NSObject {
-    let hnk_value: Any
+class ObjectWrapper {
+    let value: Any
     
     init(value: Any) {
-        self.hnk_value = value
+        self.value = value
     }
 }
 
@@ -79,7 +79,7 @@ public class HanekeCache<T: DataConvertible> where T.Result == T, T : DataRepres
     public func fetch(key: String, formatName: String = HanekeGlobals.Cache.OriginalFormatName, failure fail : Fetch<T>.Failer? = nil, success succeed : Fetch<T>.Succeeder? = nil) -> Fetch<T> {
         let fetch = HanekeCache.buildFetch(failure: fail, success: succeed)
         if let (format, memoryCache, diskCache) = self.formats[formatName] {
-            if let wrapper = memoryCache.object(forKey: key as AnyObject) as? ObjectWrapper, let result = wrapper.hnk_value as? T {
+            if let wrapper = memoryCache.object(forKey: key as AnyObject) as? ObjectWrapper, let result = wrapper.value as? T {
                 fetch.succeed(result)
                 diskCache.updateAccessDate(self.dataFromValue(result, format: format), key: key)
                 return fetch
