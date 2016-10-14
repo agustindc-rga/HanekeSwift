@@ -15,11 +15,20 @@ extension UIImage {
         drawInRect(CGRectMake(0, 0, toSize.width, toSize.height))
         let resizedImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-        return resizedImage
+        #if swift(>=2.3)
+            return resizedImage!
+        #else
+            return resizedImage
+        #endif
     }
 
     func hnk_hasAlpha() -> Bool {
-        let alpha = CGImageGetAlphaInfo(self.CGImage)
+        #if swift(>=2.3)
+            let imageRef = self.CGImage!
+        #else
+            let imageRef = self.CGImage
+        #endif
+        let alpha = CGImageGetAlphaInfo(imageRef)
         switch alpha {
         case .First, .Last, .PremultipliedFirst, .PremultipliedLast, .Only:
             return true
@@ -35,7 +44,11 @@ extension UIImage {
     }
     
     func hnk_decompressedImage() -> UIImage! {
-        let originalImageRef = self.CGImage
+        #if swift(>=2.3)
+            let originalImageRef = self.CGImage!
+        #else
+            let originalImageRef = self.CGImage
+        #endif
         let originalBitmapInfo = CGImageGetBitmapInfo(originalImageRef)
         let alphaInfo = CGImageGetAlphaInfo(originalImageRef)
         
