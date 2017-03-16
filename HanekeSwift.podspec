@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name = 'HanekeSwift'
   s.module_name = 'Haneke'
-  s.version = '0.12.0'
+  s.version = '0.20.0'
   s.license = 'Apache'
   s.summary = 'A lightweight generic cache for iOS written in Swift with extra love for images.'
   s.homepage = 'https://github.com/Haneke/HanekeSwift'
