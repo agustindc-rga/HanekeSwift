@@ -10,33 +10,30 @@ import Foundation
 
 enum FetchState<T> {
     case pending
-    // Using Wrapper as a workaround for error 'unimplemented IR generation feature non-fixed multi-payload enum layout'
-    // See: http://swiftradar.tumblr.com/post/88314603360/swift-fails-to-compile-enum-with-two-data-cases
-    // See: http://owensd.io/2014/08/06/fixed-enum-layout.html
-    case success(Wrapper<T>)
+    case success(T)
     case failure(Error?)
 }
 
 public class Fetch<T> {
     
-    public typealias Succeeder = @escaping (T) -> ()
+    public typealias Succeeder = (T) -> ()
     
-    public typealias Failer = @escaping (Error?) -> ()
+    public typealias Failer = (Error?) -> ()
     
     private var onSuccess : Succeeder?
     
     private var onFailure : Failer?
     
-    private var state : FetchState<T> = FetchState.pending
+    private var state : FetchState<T> = .pending
     
     public init() {}
     
     @discardableResult
-    public func onSuccess(_ onSuccess: Succeeder) -> Self {
+    public func onSuccess(_ onSuccess: @escaping Succeeder) -> Self {
         self.onSuccess = onSuccess
         switch self.state {
-        case FetchState.success(let wrapper):
-            onSuccess(wrapper.value)
+        case FetchState.success(let value):
+            onSuccess(value)
         default:
             break
         }
@@ -44,10 +41,10 @@ public class Fetch<T> {
     }
     
     @discardableResult
-    public func onFailure(_ onFailure: Failer) -> Self {
+    public func onFailure(_ onFailure: @escaping Failer) -> Self {
         self.onFailure = onFailure
         switch self.state {
-        case FetchState.failure(let error):
+        case .failure(let error):
             onFailure(error)
         default:
             break
@@ -56,18 +53,18 @@ public class Fetch<T> {
     }
     
     func succeed(_ value: T) {
-        self.state = FetchState.success(Wrapper(value))
+        self.state = .success(value)
         self.onSuccess?(value)
     }
     
     func fail(_ error: Error? = nil) {
-        self.state = FetchState.failure(error)
+        self.state = .failure(error)
         self.onFailure?(error)
     }
     
     var hasFailed : Bool {
         switch self.state {
-        case FetchState.failure(_):
+        case .failure(_):
             return true
         default:
             return false
@@ -76,16 +73,10 @@ public class Fetch<T> {
     
     var hasSucceeded : Bool {
         switch self.state {
-        case FetchState.success(_):
+        case .success(_):
             return true
         default:
             return false
         }
     }
-    
-}
-
-public class Wrapper<T> {
-    public let value: T
-    public init(_ value: T) { self.value = value }
 }
