@@ -51,9 +51,8 @@ extension String : DataConvertible, DataRepresentable {
     
     public typealias Result = String
     
-    public static func convertFromData(_ data: Data) -> Result? {
-        let string = NSString(data: data, encoding: String.Encoding.utf8.rawValue)
-        return string as? Result
+    public static func convertFromData(_ data: Data) -> String? {
+        return String(data: data, encoding: .utf8)
     }
     
     public func asData() -> Data! {

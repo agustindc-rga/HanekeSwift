@@ -39,7 +39,7 @@ extension String {
         // NSString.pathExtension alone could return a query string, which can lead to very long filenames.
         let pathExtension = URL(string: self)?.pathExtension ?? (self as NSString).pathExtension
 
-        if pathExtension.characters.count > 0 {
+        if !pathExtension.isEmpty {
             return (MD5String as NSString).appendingPathExtension(pathExtension) ?? MD5String
         } else {
             return MD5String
